@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+import os, sys
+
+#maybe i have more fun writing automation tools than actually using them for anything.
+
+#load configs
+print("\n===>[LOADING]")
+print("Hello! Loading configs...")
+configfile = open("build.cfg")
+configs = configfile.read().split("\n")
+#print(configs)
+success = True
+
+active_profiles = []
+
+
+#get args, load profiles
+print("Checking args...")
+if len(sys.argv) == 1:
+	print("No arguments, building all projects!")
+	for i in range(len(configs)-1):
+		if not configs[i][0] == "*":
+			active_profiles.append(configs[i].split("|")[0])
+		else:
+			print("Found hidden profile, skipping...")
+else:
+	for i in range(len(sys.argv)-1):
+		print("\nArgument " + sys.argv[i+1] + " identified. Comparing...")
+		config_found = False
+		for c in range(len(configs)):
+			if configs[c].split("|")[0] == sys.argv[i+1]:
+				print(sys.argv[i+1] + " is valid! Loading configs for this profile.")
+				config_found = True
+				active_profiles.append(sys.argv[i+1])
+				break
+		if not config_found:
+			print("Config profile " + sys.argv[i+1] + " could not be located. Did you make a typo?")
+			success = False
+print("\nAll profiles loaded!")
+
+#now that active profiles are found, start building them
+print("\n===>[BUILDING]")
+for i in range(len(active_profiles)):
+	#get current config line
+	for c in range(len(configs)):
+		if configs[c].split("|")[0] == active_profiles[i]:
+			current_config = configs[c]
+			break
+	#print(configs.split("|"))
+	os.system(current_config.split("|")[1])
+	print(str(i) + "> Built project " + active_profiles[i] + "!")
+print("All profiles complete!")
+
+#give results
+print("\n===>[RESULTS]")
+if not success:
+	print("One or more profiles could not be located.")
+print("All profiles built!")
